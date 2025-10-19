@@ -21,9 +21,12 @@ class Record:
   
 
   def __str__(self):
-    date = f"{self.dated_task[0]}.{self.dated_task[1]}.{self.dated_task[2]}"
-    time = f"{self.dated_task[3]}:{self.dated_task[4]}"
-    return date + ' ' + time + ' ' + self.dated_task[5]
+    year = str(self.dated_task[0]).zfill(4)
+    month = str(self.dated_task[1]).zfill(2)
+    day = str(self.dated_task[2]).zfill(2)
+    hour = str(self.dated_task[3]).zfill(2)
+    minute = str(self.dated_task[4]).zfill(2)
+    return f"{year}.{month}.{day} {hour}:{minute} {self.dated_task[5]}"
   
 
   def __hash__(self):
