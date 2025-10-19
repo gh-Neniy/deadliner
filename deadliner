@@ -3,6 +3,7 @@
 import os
 import functools
 import typing
+import datetime
 from sortedcontainers import SortedSet
 
 
@@ -61,19 +62,43 @@ def Save(sorted_set: SortedSet[Record], data_path: str) -> None:
 
 
 def RoughValidate(date: str, time: str) -> bool:
-  len_check = len(date) == 10 and len(time) == 5
+  # length_check
+  len_check = len(date) in (5, 10) and len(time) in (1, 5)
   if not len_check:
     return False
   
-  format_check = date[0:4].isdigit() and date[5:7].isdigit() and date[8:].isdigit() and \
-                 time[0:2].isdigit() and time[3:].isdigit()
+  # format_check
+  if (len(date) == 5):
+    date_format_check = date[0:2].isdigit() and date[3:].isdigit()
+  else:
+    date_format_check = date[0:4].isdigit() and date[5:7].isdigit() and date[8:].isdigit()
+
+  time_format_check = time[0] == '_' if len(time) == 1 else time[0:2].isdigit() and time[3:].isdigit()
+
+  format_check = date_format_check and time_format_check
   if not format_check:
     return False
   
-  semantics_check = 1 <= int(date[5:7]) <= 12 and 1 <= int(date[8:]) <= 31 and \
-                    0 <= int(time[0:2]) <= 23 and 0 <= int(time[3:]) <= 59
-  return semantics_check
+  # semantics_check
+  if (len(date) == 5):
+    date_semantics_check = 1 <= int(date[0:2]) <= 12 and 1 <= int(date[3:]) <= 31
+  else:
+    date_semantics_check = 1 <= int(date[5:7]) <= 12 and 1 <= int(date[8:]) <= 31
 
+  time_semantics_check = True if len(time) == 1 else 0 <= int(time[0:2]) <= 23 and 0 <= int(time[3:]) <= 59
+  return date_semantics_check and time_semantics_check
+
+
+def Date(date: str) -> str:
+  if len(date) == 10:
+    return date
+  return f"{datetime.datetime.now().year}.{date}"
+
+
+def Time(time: str) -> str:
+  if len(time) == 5:
+    return time
+  return '23:59'
 
 def main():
   data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
@@ -94,7 +119,7 @@ def main():
         Save(sorted_set, data_path)
         break
     elif len(command) == 4 and command[0] in ('add', 'remove') and RoughValidate(command[1], command[2]):
-      record = Parse(' '.join((command[1], command[2], command[3])))
+      record = Parse(' '.join((Date(command[1]), Time(command[2]), command[3])))
       if command[0] == 'add':
         sorted_set.add(record)
       else: # command[0] == 'remove
