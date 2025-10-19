@@ -1,0 +1,105 @@
+#!/usr/bin/python3
+
+import os
+import functools
+import typing
+from sortedcontainers import SortedSet
+
+
+@functools.total_ordering
+class Record:
+  def __init__(self, year: int, month: int, day: int, hour: int, minute: int, task: str):
+    self.dated_task = (year, month, day, hour, minute, task)
+
+
+  def __eq__(self, other: typing.Self) -> bool:
+    return self.dated_task == other.dated_task
+  
+  
+  def __lt__(self, other: typing.Self) -> bool:
+    return self.dated_task < other.dated_task
+  
+
+  def __str__(self):
+    date = f"{self.dated_task[0]}.{self.dated_task[1]}.{self.dated_task[2]}"
+    time = f"{self.dated_task[3]}:{self.dated_task[4]}"
+    return date + ' ' + time + ' ' + self.dated_task[5]
+  
+
+  def __hash__(self):
+    return hash(self.dated_task)
+
+
+def Parse(line: str) -> Record:
+  """example:\n
+  2025.10.19 11:25 do deadliner app"""
+  return Record(
+    int(line[0:4]),
+    int(line[5:7]),
+    int(line[8:10]),
+    int(line[11:13]),
+    int(line[14:16]),
+    line[17:]
+  )
+
+
+def Init(data_path: str) -> SortedSet[Record]:
+  result = SortedSet()
+  with open(data_path, 'r') as data:
+    for line in data.readlines():
+      result.add(Parse(line.strip()))
+  return result
+
+
+def Save(sorted_set: SortedSet[Record], data_path: str) -> None:
+  with open(data_path, 'w') as data:
+    for record in sorted_set:
+      data.write(str(record) + '\n')
+
+
+def RoughValidate(date: str, time: str) -> bool:
+  len_check = len(date) == 10 and len(time) == 5
+  if not len_check:
+    return False
+  
+  format_check = date[0:4].isdigit() and date[5:7].isdigit() and date[8:].isdigit() and \
+                 time[0:2].isdigit() and time[3:].isdigit()
+  if not format_check:
+    return False
+  
+  semantics_check = 1 <= int(date[5:7]) <= 12 and 1 <= int(date[8:]) <= 31 and \
+                    0 <= int(time[0:2]) <= 23 and 0 <= int(time[3:]) <= 59
+  return semantics_check
+
+
+def main():
+  data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+  sorted_set = Init(data_path)
+  while True:
+    command = input().split(' ', maxsplit=3)
+    if len(command) == 1 and command[0] in ('pop', 'top', 'all', 'exit'):
+      if command[0] == 'top':
+        if len(sorted_set) > 0:
+          print(sorted_set[0])
+      elif command[0] == 'all':
+        for record in sorted_set:
+          print(record)
+      elif command[0] == 'pop':
+        if len(sorted_set) > 0:
+          del sorted_set[0]
+      else: # command[0] == 'exit':
+        Save(sorted_set, data_path)
+        break
+    elif len(command) == 4 and command[0] in ('add', 'remove') and RoughValidate(command[1], command[2]):
+      record = Parse(' '.join((command[1], command[2], command[3])))
+      if command[0] == 'add':
+        sorted_set.add(record)
+      else: # command[0] == 'remove
+        if record in sorted_set:
+          sorted_set.remove(record)
+    else:
+      print('Unknown command.')
+
+
+if __name__ == "__main__":
+  main()
