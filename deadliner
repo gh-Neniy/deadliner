@@ -118,11 +118,11 @@ def main():
       else: # command[0] == 'exit':
         Save(sorted_set, data_path)
         break
-    elif len(command) == 4 and command[0] in ('add', 'remove') and RoughValidate(command[1], command[2]):
+    elif len(command) == 4 and command[0] in ('add', 'remove', 'rm') and RoughValidate(command[1], command[2]):
       record = Parse(' '.join((Date(command[1]), Time(command[2]), command[3])))
       if command[0] == 'add':
         sorted_set.add(record)
-      else: # command[0] == 'remove
+      else: # command[0] == 'remove' or 'rm'
         if record in sorted_set:
           sorted_set.remove(record)
     else:
