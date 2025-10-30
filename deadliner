@@ -9,7 +9,7 @@ from sortedcontainers import SortedSet
 
 @functools.total_ordering
 class Record:
-  def __init__(self, year: int, month: int, day: int, hour: int, minute: int, task: str):
+  def __init__(self, day: int, month: int, year: int, hour: int, minute: int, task: str):
     self.dated_task = (year, month, day, hour, minute, task)
 
 
@@ -27,7 +27,7 @@ class Record:
     day = str(self.dated_task[2]).zfill(2)
     hour = str(self.dated_task[3]).zfill(2)
     minute = str(self.dated_task[4]).zfill(2)
-    return f"{year}.{month}.{day} {hour}:{minute} {self.dated_task[5]}"
+    return f"{day}.{month}.{year} {hour}:{minute} {self.dated_task[5]}"
   
 
   def __hash__(self):
@@ -36,11 +36,11 @@ class Record:
 
 def Parse(line: str) -> Record:
   """example:\n
-  2025.10.19 11:25 do deadliner app"""
+  19.10.2025 11:25 do deadliner app"""
   return Record(
-    int(line[0:4]),
-    int(line[5:7]),
-    int(line[8:10]),
+    int(line[0:2]),
+    int(line[3:5]),
+    int(line[6:10]),
     int(line[11:13]),
     int(line[14:16]),
     line[17:]
@@ -68,10 +68,9 @@ def RoughValidate(date: str, time: str) -> bool:
     return False
   
   # format_check
-  if (len(date) == 5):
-    date_format_check = date[0:2].isdigit() and date[3:].isdigit()
-  else:
-    date_format_check = date[0:4].isdigit() and date[5:7].isdigit() and date[8:].isdigit()
+  date_format_check = date[0:2].isdigit() and date[3:5].isdigit()
+  if len(date) == 10:
+    date_format_check = date_format_check and date[6:].isdigit()
 
   time_format_check = time[0] == '_' if len(time) == 1 else time[0:2].isdigit() and time[3:].isdigit()
 
@@ -80,10 +79,7 @@ def RoughValidate(date: str, time: str) -> bool:
     return False
   
   # semantics_check
-  if (len(date) == 5):
-    date_semantics_check = 1 <= int(date[0:2]) <= 12 and 1 <= int(date[3:]) <= 31
-  else:
-    date_semantics_check = 1 <= int(date[5:7]) <= 12 and 1 <= int(date[8:]) <= 31
+  date_semantics_check = 1 <= int(date[0:2]) <= 31 and 1 <= int(date[3:5]) <= 12
 
   time_semantics_check = True if len(time) == 1 else 0 <= int(time[0:2]) <= 23 and 0 <= int(time[3:]) <= 59
   return date_semantics_check and time_semantics_check
@@ -92,13 +88,14 @@ def RoughValidate(date: str, time: str) -> bool:
 def Date(date: str) -> str:
   if len(date) == 10:
     return date
-  return f"{datetime.datetime.now().year}.{date}"
+  return f"{date}.{datetime.datetime.now().year}"
 
 
 def Time(time: str) -> str:
   if len(time) == 5:
     return time
   return '23:59'
+
 
 def main():
   data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
