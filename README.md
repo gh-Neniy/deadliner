@@ -82,7 +82,7 @@ rm 22.10 _ Новая запись
 deadliner --top
 ```
 
-И так же с `--all`
+И так же с `--all`:
 ```
 deadliner --all
 ```
