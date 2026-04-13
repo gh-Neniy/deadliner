@@ -55,9 +55,14 @@ def Parse(line: str) -> Record: # line already in needed format (DD.MM.YYYY)
 def Init(data_path: str) -> SortedSet[Record]:
   result = SortedSet()
 
+  if not os.path.isfile(data_path):
+    open(data_path, 'w').close()
+    return result
+
   with open(data_path) as data:
     for line in data.readlines():
-      result.add(Parse(line.strip()))
+      if line.strip():
+        result.add(Parse(line.strip()))
 
   return result
 
