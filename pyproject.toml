@@ -1,0 +1,20 @@
+[project]
+name = "deadliner"
+version = "1.0.0"
+description = "Simple console utility for managing deadlines"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "sortedcontainers>=2.4.0",
+]
+
+[tool.ruff]
+line-length = 88
+extend-include = ["deadliner"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

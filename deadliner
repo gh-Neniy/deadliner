@@ -1,26 +1,29 @@
 #!/usr/bin/python3
 
+import datetime
+import functools
 import os
 import sys
-import functools
 import typing
-import datetime
+
 from sortedcontainers import SortedSet
 
 
 @functools.total_ordering
 class Record:
-  def __init__(self, day: int, month: int, year: int, hour: int, minute: int, task: str):
+  def __init__(self, day: int, month: int, year: int,
+               hour: int, minute: int, task: str):
+
     self.dated_task = (year, month, day, hour, minute, task)
 
 
   def __eq__(self, other: typing.Self) -> bool:
     return self.dated_task == other.dated_task
-  
-  
+
+
   def __lt__(self, other: typing.Self) -> bool:
     return self.dated_task < other.dated_task
-  
+
 
   def __str__(self):
     year = str(self.dated_task[0]).zfill(4)
@@ -29,7 +32,7 @@ class Record:
     hour = str(self.dated_task[3]).zfill(2)
     minute = str(self.dated_task[4]).zfill(2)
     return f"{day}.{month}.{year} {hour}:{minute} {self.dated_task[5]}"
-  
+
 
   def __hash__(self):
     return hash(self.dated_task)
@@ -52,7 +55,7 @@ def Parse(line: str) -> Record: # line already in needed format (DD-MM-YYYY)
 def Init(data_path: str) -> SortedSet[Record]:
   result = SortedSet()
 
-  with open(data_path, 'r') as data:
+  with open(data_path) as data:
     for line in data.readlines():
       result.add(Parse(line.strip()))
 
@@ -103,7 +106,7 @@ def Date(date: str) -> str:
 def Time(time: str) -> str:
   if time == '_':
     return '23:59'
-    
+
   parts = time.split(':')
   return f"{parts[0].zfill(2)}:{parts[1].zfill(2)}"
 
@@ -134,7 +137,7 @@ def main():
       Top(sorted_set)
     else:
       All(sorted_set)
-      
+
     return
 
   while True:
@@ -152,7 +155,8 @@ def main():
         Save(sorted_set, data_path)
         break
 
-    elif len(command) == 4 and command[0] in ('add', 'rm') and ValidDate(command[1]) and ValidTime(command[2]):
+    elif (len(command) == 4 and command[0] in ('add', 'rm') and
+          ValidDate(command[1]) and ValidTime(command[2])):
       record = Parse(' '.join((Date(command[1]), Time(command[2]), command[3])))
 
       if command[0] == 'add':
