@@ -61,8 +61,7 @@ def Init(data_path: str) -> SortedSet[Record]:
 
   with open(data_path) as data:
     for line in data.readlines():
-      if line.strip():
-        result.add(Parse(line.strip()))
+      result.add(Parse(line.strip()))
 
   return result
 
