@@ -1,26 +1,44 @@
 #!/usr/bin/python3
 
 import os
+import platform
 
-def Update(rc_path: str, rc_name: str) -> None:
+
+def Update(rc_path: str, rc_name: str) -> bool:
   with open(rc_path, 'a+') as rc:
     rc.seek(0)
     add_exec = f"export PATH=\"{os.path.dirname(os.path.abspath(__file__))}:$PATH\""
     if add_exec not in rc.read():
       rc.write('\n' + add_exec + '\n')
       print(f"{rc_name} has been updated.")
+      return True
+
+  return False
+
 
 def main():
-  user_path = os.path.expanduser('~')
+  home = os.path.expanduser('~')
+  shell = os.path.basename(os.environ.get('SHELL', ''))
+  is_mac = platform.system() == 'Darwin'
 
-  bashrc_path = os.path.join(user_path, '.bashrc')
-  if os.path.isfile(bashrc_path):
-    Update(bashrc_path, '.bashrc')
-  
-  zshrc_path = os.path.join(user_path, '.zshrc')
-  if os.path.isfile(zshrc_path):
-    Update(zshrc_path, '.zshrc')
-  print('O\'key')
+  rc_candidates = [
+    ('.bashrc', shell == 'bash' and not is_mac),
+    ('.bash_profile', shell == 'bash' and is_mac),
+    ('.zshrc', shell == 'zsh'),
+  ]
+
+  updated = False
+
+  for rc_name, update_required in rc_candidates:
+    rc_path = os.path.join(home, rc_name)
+
+    if os.path.isfile(rc_path) or update_required:
+      updated = Update(rc_path, rc_name) or updated
+
+  if not updated:
+    print(f"Nothing to update, shell: {shell or 'unknown'}")
+  else:
+    print("OK")
 
 
 if __name__ == '__main__':
