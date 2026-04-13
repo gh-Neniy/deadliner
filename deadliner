@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import datetime
 import functools
@@ -38,7 +38,7 @@ class Record:
     return hash(self.dated_task)
 
 
-def Parse(line: str) -> Record: # line already in needed format (DD-MM-YYYY)
+def Parse(line: str) -> Record: # line already in needed format (DD.MM.YYYY)
   """example:\n
   19.10.2025 11:25 do deadliner app"""
 
