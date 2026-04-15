@@ -126,7 +126,7 @@ def All(sorted_set: SortedSet[Record]) -> None:
 
 
 def main():
-  data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+  data_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
   sorted_set = Init(data_path)
 
   if len(sys.argv) > 2:
@@ -134,13 +134,16 @@ def main():
     sys.exit(-1)
 
   if len(sys.argv) == 2:
-    if sys.argv[1] not in ('--top', '--all'):
-      print("Unknown flag.")
-      sys.exit(-1)
     if sys.argv[1] == '--top':
       Top(sorted_set)
-    else:
+    elif sys.argv[1] == '--all':
       All(sorted_set)
+    elif sys.argv[1] == '--help':
+      print("--top\tPrint the nearest task\n--all\tPrint all tasks")
+      sys.exit(0)
+    else:
+      print("Unknown flag")
+      sys.exit(-1)
 
     return
 

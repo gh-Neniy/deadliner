@@ -7,10 +7,12 @@ import platform
 def Update(rc_path: str, rc_name: str) -> bool:
   with open(rc_path, 'a+') as rc:
     rc.seek(0)
-    add_exec = f"export PATH=\"{os.path.dirname(os.path.abspath(__file__))}:$PATH\""
+    app_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app')
+    add_exec = f"export PATH=\"{app_path}:$PATH\""
+    
     if add_exec not in rc.read():
       rc.write('\n' + add_exec + '\n')
-      print(f"{rc_name} has been updated.")
+      print(f"{rc_name} has been updated")
       return True
 
   return False
